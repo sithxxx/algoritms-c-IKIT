@@ -1,0 +1,1 @@
+g++ -std=c++17 cut_substring.cpp -o cut_substring && ./cut_substring
