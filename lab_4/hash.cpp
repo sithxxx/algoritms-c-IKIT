@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <vector>
 #include <algorithm>
 #include <chrono>
 using namespace std;
@@ -56,11 +57,16 @@ void experiment(const string& name) {
     load(name);
     long long n = 0, longest = 0;
     for (auto& c : table) { n += c.size(); longest = max(longest, (long long)c.size()); }
+    // собираем ключи, которые реально есть в таблице (успешный поиск)
+    vector<long long> keys;
+    for (auto& c : table) for (long long x : c) keys.push_back(x);
     auto t1 = chrono::steady_clock::now();
-    for (long long k = 100000; k < 105000; k++) has(k);
+    long long found = 0;                    // накапливаем результат, чтобы компилятор не выкинул поиск
+    for (int rep = 0; rep < 10; rep++)
+        for (long long k : keys) found += has(k);
     auto t2 = chrono::steady_clock::now();
-    double us = chrono::duration<double, micro>(t2 - t1).count() / 5000;
-    cout << "N=" << n << " средняя цепочка=" << (double)n / M << " максимум=" << longest << " поиск=" << us << " мкс память=" << M * sizeof(list<long long>) + n * 24 << " byte\n";
+    double us = chrono::duration<double, micro>(t2 - t1).count() / (keys.size() * 10);
+    cout << "N=" << n << " средняя цепочка=" << (double)n / M << " максимум=" << longest << " найдено=" << found << " поиск=" << us << " мкс память=" << M * sizeof(list<long long>) + n * 24 << " byte\n";
 }
 
 int main(int args, char* argv[]) {
